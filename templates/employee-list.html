@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+</html>
+
+{% extends "base.html" %}
+{% block content %}
+    <div class="card-body">
+        <div class="col-xs-12 text-center">
+            <h4>Employees</h4>
+        </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" style="border: none">name</th>
+                <th scope="col" style="border: none">surname</th>
+                <th scope="col" style="border: none">role</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for employee in employees %}
+                <tr>
+                    <td>{{ employee.name }}</td>
+                    <td>{{ employee.surname }}</td>
+                    <td>{{ employee.role }}</td>
+                    <td>
+                        <a type="button" class="btn btn-warning" href="/employee-update/{{ employee.employee_id }}">Update</a>
+                        <a type="button" class="btn btn-danger" href="/employee-delete/{{ employee.employee_id }}">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <a type="button" class="btn btn-success" href="{% url 'employee-create' %}">Create</a>
+    </div>
+{% endblock %}

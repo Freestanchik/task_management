@@ -10,6 +10,7 @@
                 <th scope="col" style="border: none">Title</th>
                 <th scope="col" style="border: none">Additional info</th>
                 <th scope="col" style="border: none">Priority</th>
+                <th scope="col" style="border: none">Type</th>
                 <th scope="col" style="border: none">Is complete</th>
             </tr>
             </thead>
@@ -19,6 +20,7 @@
                     <td>{{ task.name }}</td>
                     <td>{{ task.additional_info }}</td>
                     <td>{{ task.priority }}</td>
+                    <td>{{ task.role }}</td>
                     <td>
                         {% if task.complete %}
                             <a type="button" class="btn btn-success" style="width: 40px"

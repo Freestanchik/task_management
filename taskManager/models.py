@@ -6,10 +6,11 @@ class Task(Document):
     name = StringField()
     additional_info = StringField()
     priority = IntField(min_value=1, max_value=5)
+    role = StringField()
     complete = BooleanField(default=False)
 
 
-class Worker(Document):
+class Employee(Document):
     name = StringField()
     surname = StringField()
     role = StringField()
