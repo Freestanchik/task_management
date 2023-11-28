@@ -1,16 +1,37 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from taskManager.dtos import TaskDTO, EmployeeDTO
-from taskManager.forms import TaskForm, EmployeeForm
+from taskManager.forms import TaskForm, EmployeeForm, TaskAssignmentForm
 from taskManager.models import Task, Employee
 
 
 # Return all tasks data
 def task_list(request):
-    tasks = list()
-    for task in Task.objects():
-        tasks.append(TaskDTO(task.id.__str__(), task.name, task.additional_info, task.priority, task.role, task.complete).__dict__)
-    return render(request, "task-list.html", {'tasks': tasks})
+    filter_by = request.GET.get('filter_by', 'priority')  # Default filter by priority
+    order_by = request.GET.get('order', 'asc')  # Default order is ascending
+
+    # Determine the sorting order based on the 'order' query parameter
+    if order_by == 'asc':
+        order = ''
+    elif order_by == 'desc':
+        order = '-'
+
+    if filter_by == 'priority':
+        tasks = Task.objects.order_by(f'{order}priority')
+    elif filter_by == 'type':
+        tasks = Task.objects.order_by(f'{order}role')
+    elif filter_by == 'complete':
+        tasks = Task.objects.order_by(f'{order}complete')
+    else:
+        tasks = Task.objects()
+
+    # Convert MongoDB documents to TaskDTO instances
+    task_dtos = [
+        TaskDTO(task.id.__str__(), task.name, task.additional_info, task.priority, task.role, task.complete,
+                task.employee).__dict__
+        for task in tasks]
+
+    return render(request, "task-list.html", {'tasks': task_dtos, 'filter_by': filter_by})
 
 
 def task_create(request):
@@ -32,7 +53,8 @@ def task_create(request):
 
 def task_update(request, task_id):
     task = Task.objects.get(id=task_id)
-    form = TaskForm(initial={'name': task.name, 'additional_info': task.additional_info, 'priority': task.priority, 'role': task.role})
+    form = TaskForm(initial={'name': task.name, 'additional_info': task.additional_info, 'priority': task.priority,
+                             'role': task.role})
     if request.method == "POST":
         form = TaskForm(request.POST)
         if form.is_valid():
@@ -56,6 +78,59 @@ def task_toggle(request, task_id):
     task.complete = not task.complete
     task.save()
     return redirect('task-list')
+
+
+def task_view(request, task_id):
+    task = Task.objects.get(id=task_id)
+    employees = Employee.objects.all()
+
+    if request.method == 'POST':
+        employee_id = request.POST.get('employee')
+        if employee_id:
+            employee = Employee.objects.get(id=employee_id)
+            task.employee = employee
+        else:
+            task.employee = None
+        task.save()
+        return redirect('task-list')
+
+    task_dto = TaskDTO(
+        task_id=str(task.id),
+        name=task.name,
+        additional_info=task.additional_info,
+        priority=task.priority,
+        role=task.role,
+        complete=task.complete,
+        employee=EmployeeDTO(
+            employee_id=str(task.employee.id) if task.employee else None,
+            name=task.employee.name if task.employee else None,
+            surname=task.employee.surname if task.employee else None,
+            role=task.employee.role if task.employee else None
+        )
+    )
+
+    employee_dtos = []
+    for employee in employees:
+        employee_dto = EmployeeDTO(
+            employee_id=str(employee.id),
+            name=employee.name,
+            surname=employee.surname,
+            role=employee.role
+        )
+        employee_dtos.append(employee_dto)
+
+    return render(request, 'task-view.html', {'task_dto': task_dto, 'employee_dtos': employee_dtos})
+
+
+def connect_employee(request, task_id, employee_id):
+    task = Task.objects.get(id=task_id)
+    employee = Employee.objects.get(id=employee_id)
+
+    # Connect the selected employee to the task
+    task.employee = employee
+    task.save()
+
+    return redirect('task-view', task_id=task_id)  # Redirect back to the task detail page
 
 
 def employee_list(request):

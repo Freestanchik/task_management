@@ -1,20 +1,23 @@
 {% extends "base.html" %}
+
 {% block content %}
-    <div class="card mt-5" style="max-width: 500px">
-        <div class="card-header">
-            <h5 class="card-title">Create New Task</h5>
-        </div>
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                <div class="d-flex flex-column" style="">
-                    {{ form.as_p }}
-                </div>
-                <div class="text-center mt-3">
-                    <a type="button" class="btn btn-danger" href="{% url 'task-list' %}">Cancel</a>
-                    <button type="submit" class="btn btn-success">Create</button>
-                </div>
-            </form>
+    <div class="container mt-5">
+        <div class="card" style="max-width: 500px; margin: 0 auto;">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title">Create New Task</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{ form.as_p }}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a type="button" class="btn btn-danger" href="{% url 'task-list' %}">Cancel</a>
+                        <button type="submit" class="btn btn-success">Create</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}

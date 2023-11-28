@@ -1,4 +1,10 @@
-from mongoengine import StringField, IntField, BooleanField, Document
+from mongoengine import StringField, IntField, BooleanField, Document, ReferenceField
+
+
+class Employee(Document):
+    name = StringField()
+    surname = StringField()
+    role = StringField()
 
 
 # Create your models here.
@@ -8,9 +14,4 @@ class Task(Document):
     priority = IntField(min_value=1, max_value=5)
     role = StringField()
     complete = BooleanField(default=False)
-
-
-class Employee(Document):
-    name = StringField()
-    surname = StringField()
-    role = StringField()
+    employee = ReferenceField(Employee)

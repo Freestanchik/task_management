@@ -1,10 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block content %}
+    <div class="container mt-4">
+        <div class="card mx-auto" style="max-width: 800px; width: 100%;">
+            <div class="card-body">
+                <h1 class="card-title">Task: {{ task_dto.name }}</h1>
+                <p class="card-text">
+                    <strong>Additional Info:</strong><br>
+                    {{ task_dto.additional_info }}
+                </p>
+                <p class="card-text"><strong>Priority:</strong> {{ task_dto.priority }}</p>
+                <p class="card-text">
+                    <strong>Assigned Employee:</strong>
+                    {{ task_dto.employee.name }} {{ task_dto.employee.surname }} ({{ task_dto.employee.role }})
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <select name="employee" id="employee" class="form-control">
+                            <option value="">Select an Employee</option>
+                            {% for employee_dto in employee_dtos %}
+                                <option value="{{ employee_dto.employee_id }}" {% if employee_dto.employee_id == task_dto.employee %}selected{% endif %}>
+                                    {{ employee_dto.surname }} ({{ employee_dto.role }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Assign Employee</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
